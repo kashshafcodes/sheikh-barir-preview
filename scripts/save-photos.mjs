@@ -17,9 +17,20 @@ for (const p of store.products) {
   if (!p.image || !/^https?:\/\//.test(p.image)) continue;
   const file = `${p.id}.jpg`;
   try {
-    const res = await fetch(p.image);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    await writeFile(new URL(file, OUT), Buffer.from(await res.arrayBuffer()));
+    // Facebook sometimes refuses a download for a moment, so try up to 4 times.
+    let body;
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const res = await fetch(p.image);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        body = Buffer.from(await res.arrayBuffer());
+        break;
+      } catch (e) {
+        if (attempt === 4) throw e;
+        await new Promise((r) => setTimeout(r, 2000 * attempt));
+      }
+    }
+    await writeFile(new URL(file, OUT), body);
     source = source.split(JSON.stringify(p.image)).join(JSON.stringify(`photos/${file}`));
     saved++;
     console.log(`saved ${p.name} -> public/photos/${file}`);
