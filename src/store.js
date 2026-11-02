@@ -25,7 +25,7 @@ export const store = {
 
   lang: "bn",
   builtBy: "Kazi Marzuk",
-  builtByUrl: "https://wa.me/8801700000000",
+  builtByUrl: "https://wa.me/8801891966267",
 
   categories: [
     { id: "birthday", label: "জন্মদিনের কেক" },
